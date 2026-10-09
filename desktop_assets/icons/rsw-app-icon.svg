@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#edf4ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="208" fill="url(#background)"/>
+  <rect x="70" y="70" width="884" height="884" rx="202" fill="none" stroke="#d8e6fa" stroke-width="12"/>
+  <g
+    transform="translate(160 55) scale(24)"
+    fill="none"
+    stroke="#0b57d0"
+    stroke-width="1.65"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M5 25h22"/>
+    <path d="M8 22V13"/>
+    <path d="M14 22V8"/>
+    <path d="M20 22V11"/>
+    <path d="M26 22V5"/>
+    <path d="M7 17l6-5 6 3 7-8"/>
+  </g>
+  <text
+    x="512"
+    y="858"
+    fill="#123b78"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="164"
+    font-weight="800"
+    letter-spacing="12"
+    text-anchor="middle"
+  >RSW</text>
+</svg>

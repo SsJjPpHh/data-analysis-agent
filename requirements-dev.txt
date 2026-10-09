@@ -1,0 +1,5 @@
+# Minimal local development verification toolchain.
+-r requirements.txt
+pytest==9.0.1
+ruff==0.15.14
+pip-audit==2.10.1

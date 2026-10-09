@@ -1,0 +1,21 @@
+# Research Statistics Workbench source-run runtime
+#
+# R/statistical packages are provided by the user's local R installation.
+# Missing packages use the user's personal R library by default; system settings
+# can select an application-specific library instead.
+
+# Web/API
+flask==3.1.3
+waitress==3.0.2
+
+# Independent desktop window (no compilation or installer required)
+PySide6==6.11.1
+
+# LLM / HTTP
+openai==2.14.0
+httpx==0.27.2
+
+# Artifact export
+Pillow==12.3.0
+openpyxl==3.1.5
+python-docx==1.2.0

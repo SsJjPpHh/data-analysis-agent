@@ -1,0 +1,54 @@
+# Lint / format configuration for Research Statistics Workbench.
+#
+# This file does NOT make the project a pip-installable package —
+# it only carries configuration for linting and test discovery.
+# The runtime entry point is `python -m desktop`.
+#
+# Run locally:
+#     pip install ruff
+#     ruff check .
+#     ruff format --check .
+#
+# These checks run locally; the repository has no GitHub Actions configuration.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 110
+extend-exclude = [
+    "outputs/",
+    "uploads/",
+]
+
+[tool.ruff.lint]
+# Check syntax, name resolution, and common bug patterns.
+select = [
+    "E9",    # syntax errors only (E1/E2/E3 = whitespace; E5 = line length; E7 = style nags)
+    "F",     # pyflakes — undefined names, unused imports/vars, ambiguous syntax
+    "B",     # flake8-bugbear — real bug patterns
+]
+ignore = [
+    "F401",  # unused import
+    "F403",  # star import
+    "F405",  # name may be undefined from star import
+    "F811",  # redefined while unused
+    "F841",  # local variable assigned but never used
+    "B007",  # unused loop variable — for/in over .items() with discarded key
+    "B008",  # function call in default arg — Flask/dataclass patterns
+    "B017",  # `assertRaises(Exception)` — tests do this on purpose
+    "B023",  # function-uses-loop-variable — async helpers do this
+    "B904",  # raise without explicit exception chaining
+    "B905",  # zip() without strict=
+    "B005",  # str.strip() with a multi-character argument
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests reach into private helpers (_clean_identifier etc.) on purpose; allow
+# late imports for sys.path manipulation.
+"tests/**/*.py" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://research-statistics-workbench.local/schemas/analysis-catalog-v4.json",
+  "title": "Research Statistics Workbench Analysis Catalog V4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "categories",
+    "templates",
+    "aliases"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^4\\.[0-9]+\\.[0-9]+$"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/category"
+      }
+    },
+    "templates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/template"
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/templateId"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/templateId"
+      }
+    }
+  },
+  "$defs": {
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "minLength": 2,
+      "maxLength": 96
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "基础统计",
+        "临床研究",
+        "公共卫生",
+        "临床试验与证据合成",
+        "行为与社会科学",
+        "机器学习",
+        "时间空间与文本",
+        "组学与生物信息"
+      ]
+    },
+    "stringList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    },
+    "requiredOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "kind"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "maxLength": 96
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "table",
+            "figure",
+            "text",
+            "model"
+          ]
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "tier": {
+          "type": "string",
+          "enum": [
+            "core",
+            "recommended",
+            "conditional",
+            "diagnostic",
+            "sensitivity"
+          ],
+          "default": "core"
+        },
+        "rationale": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "conditions": {
+          "$ref": "#/$defs/stringList"
+        },
+        "acceptance": {
+          "$ref": "#/$defs/stringList"
+        },
+        "semantic_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "maxLength": 96
+        },
+        "legacy_roles": {
+          "$ref": "#/$defs/stringList"
+        }
+      }
+    },
+    "inputSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "kind",
+        "requirement",
+        "semantic_role",
+        "accepts",
+        "confirmation",
+        "auto_select",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/templateId"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "dataset",
+            "column",
+            "columns",
+            "level",
+            "parameter",
+            "object",
+            "specification"
+          ]
+        },
+        "requirement": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "conditional",
+            "optional"
+          ]
+        },
+        "semantic_role": {
+          "$ref": "#/$defs/templateId"
+        },
+        "accepts": {
+          "$ref": "#/$defs/stringList"
+        },
+        "confirmation": {
+          "type": "string",
+          "enum": [
+            "never",
+            "on_ambiguity",
+            "always"
+          ]
+        },
+        "auto_select": {
+          "type": "string",
+          "enum": [
+            "none",
+            "dataset",
+            "best_match",
+            "all_eligible"
+          ]
+        },
+        "default": {},
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "depends_on": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "maxLength": 96
+        },
+        "choices": {
+          "$ref": "#/$defs/stringList"
+        },
+        "required_when": {
+          "$ref": "#/$defs/stringList"
+        },
+        "min_items": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "legacy_labels": {
+          "$ref": "#/$defs/stringList"
+        }
+      }
+    },
+    "inputContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shape",
+        "formats",
+        "required_roles",
+        "optional_roles",
+        "inputs"
+      ],
+      "properties": {
+        "shape": {
+          "type": "string",
+          "enum": [
+            "tabular",
+            "r_object"
+          ]
+        },
+        "formats": {
+          "$ref": "#/$defs/stringList"
+        },
+        "required_roles": {
+          "$ref": "#/$defs/stringList"
+        },
+        "optional_roles": {
+          "$ref": "#/$defs/stringList"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/inputSpec"
+          }
+        },
+        "at_least_one": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/templateId"
+            }
+          }
+        }
+      }
+    },
+    "methodContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packages",
+        "prerequisites",
+        "assumptions",
+        "diagnostics"
+      ],
+      "properties": {
+        "packages": {
+          "$ref": "#/$defs/stringList"
+        },
+        "prerequisites": {
+          "$ref": "#/$defs/stringList"
+        },
+        "assumptions": {
+          "$ref": "#/$defs/stringList"
+        },
+        "diagnostics": {
+          "$ref": "#/$defs/stringList"
+        },
+        "diagnostic_conditions": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/stringList"
+          }
+        },
+        "package_branches": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^input:[a-z][a-z0-9_]*=.+$"
+          },
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "outputContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required"
+      ],
+      "properties": {
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/requiredOutput"
+          }
+        }
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "family",
+        "scenario",
+        "title",
+        "input_contract",
+        "method_contract",
+        "output_contract",
+        "resource_class",
+        "visibility",
+        "prompt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/templateId"
+        },
+        "category": {
+          "$ref": "#/$defs/category"
+        },
+        "family": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "maxLength": 96
+        },
+        "scenario": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 300
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160
+        },
+        "aliases": {
+          "$ref": "#/$defs/stringList"
+        },
+        "search_terms": {
+          "$ref": "#/$defs/stringList"
+        },
+        "input_contract": {
+          "$ref": "#/$defs/inputContract"
+        },
+        "method_contract": {
+          "$ref": "#/$defs/methodContract"
+        },
+        "output_contract": {
+          "$ref": "#/$defs/outputContract"
+        },
+        "resource_class": {
+          "type": "string",
+          "enum": [
+            "standard",
+            "extended"
+          ]
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "user",
+            "internal"
+          ]
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 8000
+        }
+      }
+    }
+  }
+}

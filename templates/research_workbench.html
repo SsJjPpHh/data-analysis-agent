@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>科研统计工作台</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/research_workbench.css', v='r56') }}">
+</head>
+<body>
+  <div class="rsw-shell" data-app="research-workbench">
+    <aside class="rsw-left">
+      <header class="rsw-brand">
+        <div class="rsw-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" role="img">
+            <path d="M5 25h22" />
+            <path d="M8 22V13" />
+            <path d="M14 22V8" />
+            <path d="M20 22V11" />
+            <path d="M26 22V5" />
+            <path d="M7 17l6-5 6 3 7-8" />
+          </svg>
+        </div>
+        <div>
+          <div class="rsw-brand-name">科研统计工作台</div>
+          <div class="rsw-brand-sub">Research Statistics Workbench</div>
+        </div>
+        <button class="rsw-icon-btn rsw-mobile-menu" id="rsw-mobile-menu" type="button" aria-label="展开工作台菜单" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></svg>
+        </button>
+      </header>
+
+      <nav class="rsw-view-switch" aria-label="工作页面">
+        <button class="is-active" type="button" data-workbench-view="assistant">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.3 5.2L20 10.5l-5.7 2.1L12 18l-2.3-5.4L4 10.5l5.7-2.3z" /></svg>
+          <span>AI 分析助手</span>
+        </button>
+        <button type="button" data-workbench-view="results">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9" /><path d="M12 19V5" /><path d="M19 19v-7" /><path d="M4 19h16" /></svg>
+          <span>分析结果</span>
+          <em id="rsw-result-view-state">待分析</em>
+        </button>
+      </nav>
+
+      <section class="rsw-side-session" aria-label="当前会话">
+        <button class="rsw-primary-btn" id="rsw-new-session" type="button">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14" /><path d="M5 12h14" /></svg>
+          <span>新会话</span>
+        </button>
+        <dl class="rsw-side-context">
+          <div>
+            <dt>当前数据</dt>
+            <dd id="rsw-top-dataset-name">等待上传</dd>
+          </div>
+          <div>
+            <dt>分析阶段</dt>
+            <dd id="rsw-top-stage">数据准备</dd>
+          </div>
+          <div>
+            <dt>运行状态</dt>
+            <dd>
+              <div class="rsw-context-action" id="rsw-top-readiness" aria-live="polite">
+                <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9" /><path d="M17 7h3" /><path d="M15 5v4" /><path d="M4 17h3" /><path d="M11 17h9" /><path d="M9 15v4" /></svg>
+                <span>检查中</span>
+              </div>
+            </dd>
+          </div>
+        </dl>
+        <div class="rsw-run-state" id="rsw-run-state">
+          <span></span>
+          <strong>空闲</strong>
+          <small>就绪</small>
+        </div>
+      </section>
+
+      <section class="rsw-side-shortcuts" aria-label="快捷操作">
+        <button type="button" id="rsw-side-upload">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11" /><path d="M7 9l5-5 5 5" /><path d="M5 20h14" /></svg>
+          <span>上传数据</span>
+        </button>
+        <button type="button" id="rsw-side-templates">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h7v7H4z" /><path d="M13 5h7v7h-7z" /><path d="M4 14h7v5H4z" /><path d="M13 14h7v5h-7z" /></svg>
+          <span>分析模板</span>
+        </button>
+        <button type="button" id="rsw-side-model">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9" /><path d="M17 7h3" /><path d="M15 5v4" /><path d="M4 17h3" /><path d="M11 17h9" /><path d="M9 15v4" /></svg>
+          <span>系统设置</span>
+        </button>
+        <button type="button" id="rsw-side-results">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z" /><path d="M8 9h8" /><path d="M8 13h8" /><path d="M8 17h5" /></svg>
+          <span>查看结果</span>
+        </button>
+        <button type="button" id="rsw-side-clear">
+          <svg class="rsw-side-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12" /><path d="M9 7V5h6v2" /><path d="M9 11v6" /><path d="M15 11v6" /><path d="M7 7l1 13h8l1-13" /></svg>
+          <span>清空对话</span>
+        </button>
+      </section>
+
+    </aside>
+
+    <main class="rsw-main">
+      <section class="rsw-workspace">
+        <section class="rsw-conversation rsw-view-panel is-active" data-workbench-panel="assistant" aria-label="AI 分析助手">
+          <div class="rsw-section-title">
+            <div>
+              <h1>AI 分析助手</h1>
+            </div>
+          </div>
+
+          <div class="rsw-assistant-ops">
+            <section class="rsw-upload-zone" id="rsw-upload-zone" tabindex="0" role="button" aria-label="上传科研数据">
+              <div class="rsw-upload-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 4v11" /><path d="M7 9l5-5 5 5" /><path d="M5 19h14" /></svg>
+              </div>
+              <div>
+                <strong>上传科研数据</strong>
+                <p id="rsw-upload-copy">点击导入文件；桌面版也可选择多文件或完整科研数据文件夹</p>
+              </div>
+              <span id="rsw-upload-state">等待文件</span>
+            </section>
+
+            <section class="rsw-status-board" id="rsw-status-board" aria-live="polite">
+              <div class="rsw-status-symbol" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3v18" /><path d="M5 8h14" /><path d="M5 16h14" /></svg>
+              </div>
+              <div>
+                <strong id="rsw-status-title">工作台就绪</strong>
+                <p id="rsw-status-detail">等待上传科研数据。</p>
+              </div>
+              <button class="rsw-mini-btn" id="rsw-status-action" type="button" hidden>重试</button>
+            </section>
+          </div>
+
+          <section class="rsw-analysis-plan" id="rsw-analysis-plan" aria-live="polite" hidden>
+            <div class="rsw-analysis-plan-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M6 12l4 4 8-9" /></svg>
+            </div>
+            <div class="rsw-analysis-plan-copy">
+              <div class="rsw-analysis-plan-heading">
+                <span id="rsw-plan-source">分析计划</span>
+                <strong id="rsw-plan-family">待选择方法</strong>
+              </div>
+              <p class="rsw-analysis-plan-summary" id="rsw-plan-summary">
+                <span id="rsw-plan-bindings">待识别输入</span>
+                <i aria-hidden="true">·</i>
+                <span id="rsw-plan-packages">实时选择 R 包</span>
+                <i aria-hidden="true">·</i>
+                <span id="rsw-plan-outputs">生成分析产物</span>
+              </p>
+            </div>
+            <strong class="rsw-analysis-plan-resource" id="rsw-plan-resource">标准资源</strong>
+          </section>
+
+          <ol class="rsw-phase-timeline" id="rsw-phase-timeline" hidden></ol>
+          <section class="rsw-plan-inputs" id="rsw-plan-inputs" hidden></section>
+          <div class="rsw-results-ready" id="rsw-results-ready" hidden>
+            <span>已生成产物，可查看结果与待完成项</span>
+            <button class="rsw-mini-btn" type="button" data-workbench-view="results">查看结果</button>
+          </div>
+
+          <section class="rsw-preparation-plan" id="rsw-preparation-plan" aria-live="polite" hidden>
+            <div class="rsw-preparation-plan-mark" aria-hidden="true">!</div>
+            <div class="rsw-preparation-plan-copy">
+              <span id="rsw-preparation-target">分析前准备</span>
+              <strong id="rsw-preparation-headline">当前数据需要先准备</strong>
+              <p id="rsw-preparation-summary"></p>
+              <div class="rsw-preparation-plan-steps" id="rsw-preparation-steps"></div>
+            </div>
+            <div class="rsw-preparation-plan-actions">
+              <button type="button" data-start-preparation>查看处理方案</button>
+              <button type="button" data-assist-preparation>AI 协助准备</button>
+              <button type="button" data-upload-prepared="files">导入处理后文件</button>
+              <button type="button" data-upload-prepared="directory">导入处理后文件夹</button>
+            </div>
+          </section>
+
+          <div class="rsw-message-list" id="rsw-message-list">
+            <article class="rsw-message rsw-message-ai">
+              <div class="rsw-avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3l2.3 5.2L20 10.5l-5.7 2.1L12 18l-2.3-5.4L4 10.5l5.7-2.3z" /></svg>
+              </div>
+              <div class="rsw-bubble">
+                <p>你好，我是你的科研统计助手。上传数据后，我会先检查变量类型、样本量、缺失情况和潜在分组变量，再根据你的研究问题生成分析、模型、图表和结果解释。</p>
+              </div>
+            </article>
+          </div>
+
+          <form class="rsw-composer" id="rsw-chat-form">
+            <textarea id="rsw-chat-input" rows="4" placeholder="直接描述你的研究问题、变量关系或想得到的结果，也可附加图片让模型解读"></textarea>
+            <div class="rsw-chat-image-chips" id="rsw-chat-image-chips" hidden></div>
+            <div class="rsw-composer-toolbar">
+              <input id="rsw-file-input" type="file" hidden>
+              <input id="rsw-chat-image-input" type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+              <button id="rsw-native-files" type="button">导入文件</button>
+              <button id="rsw-native-directory" type="button">导入文件夹</button>
+              <button id="rsw-attach-image" type="button">附加图片</button>
+              <button class="rsw-stop-btn" id="rsw-stop-run" type="button" hidden>停止分析</button>
+              <button class="rsw-run-plan-btn" id="rsw-run-plan-btn" type="button" hidden>按此计划运行</button>
+              <button class="rsw-send-btn" type="submit" aria-label="发送">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside class="rsw-results rsw-view-panel" data-workbench-panel="results" aria-label="分析结果" hidden>
+          <div class="rsw-section-title">
+            <div>
+              <div class="rsw-results-heading">
+                <h2>分析结果</h2>
+                <span class="rsw-result-state is-idle" id="rsw-result-state">待分析</span>
+              </div>
+              <p>按分析轮次组织科研结果、论文整理和交付验收。</p>
+            </div>
+            <div class="rsw-title-actions">
+              <button class="rsw-mini-btn" id="rsw-open-assistant" type="button">返回助手</button>
+              <button class="rsw-mini-btn" id="rsw-copy-summary" type="button">复制摘要</button>
+              <button class="rsw-mini-btn" id="rsw-export-draft" type="button">Word 草稿</button>
+            </div>
+          </div>
+
+          <div class="rsw-result-v2-tabs" role="tablist" aria-label="科研结果视图">
+            <button class="is-active" type="button" data-result-view="overview">研究概览</button>
+            <button type="button" data-result-view="turns">分析轮次</button>
+            <button type="button" data-result-view="paper">论文整理</button>
+            <button type="button" data-result-view="delivery">交付验收</button>
+          </div>
+
+          <div class="rsw-result-v2-layout" id="rsw-result-v2-layout">
+            <aside class="rsw-turn-sidebar" aria-label="分析轮次列表">
+              <div class="rsw-turn-tools">
+                <input id="rsw-turn-search" type="search" placeholder="搜索方法、变量、模板">
+                <div class="rsw-turn-filters" role="group" aria-label="分析轮次筛选">
+                  <button type="button" class="is-active" data-turn-filter="all">全部</button>
+                  <button type="button" data-turn-filter="core">核心</button>
+                  <button type="button" data-turn-filter="paper">论文</button>
+                </div>
+              </div>
+              <div class="rsw-turn-list" id="rsw-turn-list"></div>
+            </aside>
+
+            <section class="rsw-result-v2-main">
+              <section class="rsw-result-v2-panel" data-result-view-panel="overview">
+                <div class="rsw-result-card">
+                  <div class="rsw-card-headline">
+                    <h3>研究概览</h3>
+                    <span id="rsw-overview-updated">等待结果</span>
+                  </div>
+                  <p id="rsw-overview-summary">上传数据并运行分析后，这里只展示会话级状态，不混入具体图表。</p>
+                  <div class="rsw-metric-row" id="rsw-overview-metrics">
+                    <div><span>样本量</span><strong>--</strong></div>
+                    <div><span>变量数</span><strong>--</strong></div>
+                    <div><span>分析轮次</span><strong>0</strong></div>
+                    <div><span>纳入论文</span><strong>0</strong></div>
+                  </div>
+                </div>
+                <div class="rsw-result-card">
+                  <div class="rsw-card-headline">
+                    <h3>最近分析</h3>
+                    <button class="rsw-mini-btn" type="button" data-result-view-jump="turns">查看轮次</button>
+                  </div>
+                  <div class="rsw-overview-turns" id="rsw-overview-turns"></div>
+                </div>
+              </section>
+
+              <section class="rsw-result-v2-panel" data-result-view-panel="turns" hidden>
+                <div class="rsw-turn-detail" id="rsw-turn-detail"></div>
+              </section>
+
+              <section class="rsw-result-v2-panel" data-result-view-panel="paper" hidden>
+                <div class="rsw-result-card">
+                  <div class="rsw-card-headline">
+                    <h3>论文整理</h3>
+                    <div class="rsw-inline-actions">
+                      <button class="rsw-mini-btn" id="rsw-export-word" type="button">Word 草稿</button>
+                      <button class="rsw-mini-btn" id="rsw-export-excel" type="button">Excel 表格包</button>
+                      <button class="rsw-mini-btn" id="rsw-export-figures" type="button">图形包</button>
+                    </div>
+                  </div>
+                  <p>纳入论文的表格、图形和文本会按科研分组整理，导出前可编辑标题、图注和表格脚注。</p>
+                  <div class="rsw-paper-board" id="rsw-paper-board"></div>
+                </div>
+              </section>
+
+              <section class="rsw-result-v2-panel" data-result-view-panel="delivery" hidden>
+                <div class="rsw-result-card">
+                  <div class="rsw-card-headline">
+                    <h3>交付验收</h3>
+                    <div class="rsw-inline-actions">
+                      <button class="rsw-mini-btn" id="rsw-export-package" type="button">导出交付包</button>
+                    </div>
+                  </div>
+                  <div class="rsw-delivery-score" id="rsw-delivery-score-v2">
+                    <strong>0/5</strong>
+                    <span>等待上传数据</span>
+                  </div>
+                  <ul class="rsw-delivery-list" id="rsw-delivery-list-v2"></ul>
+                </div>
+              </section>
+            </section>
+
+            <aside class="rsw-result-assist" id="rsw-result-assist" aria-label="结果辅助信息">
+              <h3>论文篮</h3>
+              <div id="rsw-paper-basket">尚未纳入论文产物。</div>
+            </aside>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="rsw-modal" id="rsw-ai-modal" hidden>
+    <div class="rsw-modal-backdrop" data-ai-modal-close></div>
+    <section class="rsw-ai-dialog" role="dialog" aria-modal="true" aria-labelledby="rsw-ai-dialog-title">
+      <div class="rsw-ai-dialog-head">
+        <div>
+          <span>本地运行环境与模型</span>
+          <h2 id="rsw-ai-dialog-title">系统设置</h2>
+        </div>
+        <button class="rsw-icon-btn" type="button" aria-label="关闭" data-ai-modal-close>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12" /><path d="M18 6L6 18" /></svg>
+        </button>
+      </div>
+
+      <section class="rsw-runtime-settings" aria-label="本地运行环境">
+        <div class="rsw-runtime-settings-head">
+          <div>
+            <h3>本地运行环境</h3>
+            <p>检测当前机器的 Python、Qt、R 与研究工作区状态。</p>
+          </div>
+          <button class="rsw-secondary-btn" id="rsw-refresh-runtime" type="button">刷新</button>
+        </div>
+        <dl class="rsw-runtime-grid">
+          <div><dt>应用版本</dt><dd id="rsw-settings-app-version">读取中</dd></div>
+          <div><dt>R 版本</dt><dd id="rsw-settings-r-version">读取中</dd></div>
+          <div><dt>运行平台</dt><dd id="rsw-settings-platform">读取中</dd></div>
+          <div><dt>R 本机资源</dt><dd id="rsw-settings-r-resources">读取中</dd></div>
+          <div><dt>Python / Qt</dt><dd id="rsw-settings-python-qt">读取中</dd></div>
+          <div><dt>已安装 R 包</dt><dd id="rsw-settings-package-count">读取中</dd></div>
+          <div><dt>R 运行位置</dt><dd id="rsw-settings-runtime-digest">读取中</dd></div>
+          <div><dt>本机依赖</dt><dd id="rsw-settings-external-readiness">读取中</dd></div>
+          <div><dt>工作区占用</dt><dd id="rsw-settings-workspace-usage">读取中</dd></div>
+          <div><dt>开发者</dt><dd>{{ app_developer }}</dd></div>
+        </dl>
+        <form class="rsw-r-library-form" id="rsw-r-library-form">
+          <div class="rsw-r-library-heading">
+            <div>
+              <strong>缺失 R 包安装位置</strong>
+              <small>两种模式都调用同一个本机 R；只改变新安装包的写入位置。</small>
+            </div>
+            <button class="rsw-secondary-btn" type="submit">保存 R 包设置</button>
+          </div>
+          <div class="rsw-r-library-options">
+            <label class="rsw-r-library-option">
+              <input id="rsw-r-library-user" name="r-library-mode" type="radio" value="user">
+              <span>
+                <strong>用户个人 R 包库（推荐）</strong>
+                <small>使用 R 的标准个人库，可与该用户的其他 R 项目共享；不写系统级 R 目录。</small>
+              </span>
+            </label>
+            <label class="rsw-r-library-option">
+              <input id="rsw-r-library-managed" name="r-library-mode" type="radio" value="managed">
+              <span>
+                <strong>应用 / 项目专属库</strong>
+                <small>按 R 主次版本隔离，适合希望项目独立管理包的用户。</small>
+              </span>
+            </label>
+          </div>
+          <label class="rsw-r-library-path">
+            <span>专属库根目录（可选）</span>
+            <input id="rsw-r-library-custom-path" type="text" autocomplete="off" placeholder="留空则使用应用数据目录；也可填写项目中的绝对路径">
+          </label>
+          <p class="rsw-r-library-current">当前实际写入：<code id="rsw-r-library-current-path">读取中</code></p>
+          <p class="rsw-ai-key-status" id="rsw-r-library-status"></p>
+        </form>
+      </section>
+
+      <form class="rsw-ai-form rsw-model-sharing-form" id="rsw-model-sharing-form">
+        <h3>当前会话的模型外发设置</h3>
+        <p class="rsw-privacy-note" id="rsw-model-sharing-session">正在读取当前会话设置。</p>
+        <label>
+          <span>统计结果发送方式</span>
+          <select id="rsw-model-sharing-result-mode" aria-describedby="rsw-model-sharing-description">
+            <option value="summary_only">仅发送汇总结果（默认）</option>
+            <option value="deidentified">发送去标识的个体结果</option>
+          </select>
+        </label>
+        <p class="rsw-privacy-note" id="rsw-model-sharing-description">汇总结果模式将个体结果保留在本机。</p>
+        <label>
+          <span>不向模型发送的敏感列</span>
+          <textarea id="rsw-model-sharing-sensitive-columns" rows="3" autocomplete="off" spellcheck="false" aria-describedby="rsw-model-sharing-columns-help" placeholder="每行一个精确列名，例如：\n姓名\n住院号"></textarea>
+        </label>
+        <p class="rsw-privacy-note" id="rsw-model-sharing-columns-help">每行一个列名，大小写和空格须与数据一致。这只改变模型外发内容，不修改本机原始文件或统计结果。</p>
+        <details class="rsw-model-sharing-columns">
+          <summary>从当前已检查的字段添加</summary>
+          <div id="rsw-model-sharing-column-options">检查数据后可在这里选择字段。</div>
+        </details>
+        <label class="rsw-model-sharing-toggle">
+          <input id="rsw-model-sharing-send-result-images" type="checkbox">
+          <span>向模型发送本机分析结果图（默认关闭）<small>原图中的文字、标签及个体信息不保证脱敏。仅在确认图中内容可外发时开启。</small></span>
+        </label>
+        <label class="rsw-model-sharing-toggle">
+          <input id="rsw-model-sharing-send-attached-images" type="checkbox" checked>
+          <span>向模型发送我主动附加的图片（默认开启）<small>关闭后，含待发送附件的提问会被拒绝；移除附件后仍可发送文字。</small></span>
+        </label>
+        <p class="rsw-privacy-note" id="rsw-model-sharing-lock"></p>
+        <p class="rsw-ai-key-status" id="rsw-model-sharing-status" role="status" aria-live="polite"></p>
+        <div class="rsw-ai-actions">
+          <button class="rsw-primary-btn" id="rsw-model-sharing-save" type="submit" disabled>保存当前会话外发设置</button>
+        </div>
+      </form>
+
+      <form class="rsw-ai-form" id="rsw-ai-key-form">
+        <h3>DeepSeek V4.1 Flash</h3>
+        <p class="rsw-privacy-note">隐私提示：变量结构和结果按当前会话的外发策略发送至 DeepSeek；图片受各自开关控制。你输入的文字仍会发送，请勿填写无分析必要的直接身份信息。去标识结果保留个体数值，不等于完全匿名，也不保证图中文字脱敏。原始数据文件和 R 统计执行仍保留在本机，外发设置不会修改本机文件。</p>
+        <p id="rsw-ai-key-current" class="rsw-ai-key-status"></p>
+        <label>
+          <span>API Key</span>
+          <input id="rsw-ai-key-input" type="password" autocomplete="off" placeholder="sk-..." required>
+        </label>
+        <p id="rsw-ai-key-status" class="rsw-ai-key-status"></p>
+        <div class="rsw-ai-actions">
+          <button class="rsw-secondary-btn" id="rsw-ai-test-key" type="button">测试连接</button>
+          <button class="rsw-secondary-btn" id="rsw-ai-clear-key" type="button">清除 Key</button>
+          <button class="rsw-primary-btn" type="submit">保存并启用</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="rsw-template-modal" id="rsw-template-modal" hidden>
+    <div class="rsw-template-backdrop" data-template-modal-close></div>
+    <section class="rsw-template-library" role="dialog" aria-modal="true" aria-labelledby="rsw-template-title">
+      <header class="rsw-template-head">
+        <div>
+          <span>R 能力库</span>
+          <h2 id="rsw-template-title">分析模板</h2>
+          <p>上传数据后会自动完成基础数据理解，无需先运行“数据质量与变量字典”；系统会自动准备模板，只在科学含义确有歧义时确认必要关键项。</p>
+        </div>
+        <button class="rsw-icon-btn" type="button" aria-label="关闭模板库" data-template-modal-close>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12" /><path d="M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <div class="rsw-template-tools">
+        <label>
+          <span>搜索模板</span>
+          <input id="rsw-template-search" type="search" placeholder="搜索中文、英文、缩写、R 包名或旧模板别名">
+        </label>
+        <div id="rsw-template-count">--</div>
+      </div>
+      <nav class="rsw-template-workflows" id="rsw-template-workflows" aria-label="工作流筛选"></nav>
+      <div class="rsw-template-body">
+        <nav class="rsw-template-categories" id="rsw-template-categories" aria-label="模板分类"></nav>
+        <div class="rsw-template-cards" id="rsw-template-cards"></div>
+        <aside class="rsw-template-detail" id="rsw-template-detail" aria-label="模板详情"></aside>
+      </div>
+    </section>
+  </div>
+
+  <div class="rsw-modal rsw-dependency-modal" id="rsw-dependency-modal" hidden>
+    <div class="rsw-modal-backdrop" data-dependency-action="close"></div>
+    <section class="rsw-dependency-dialog" role="dialog" aria-modal="true" aria-labelledby="rsw-dependency-title" aria-describedby="rsw-dependency-summary">
+      <header class="rsw-dependency-head">
+        <div>
+          <span>本机科研运行环境</span>
+          <h2 id="rsw-dependency-title">分析依赖确认</h2>
+        </div>
+        <button class="rsw-icon-btn" type="button" aria-label="关闭依赖确认" data-dependency-action="close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12" /><path d="M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <div class="rsw-dependency-body">
+        <p id="rsw-dependency-summary">正在检查当前分析所需的 R 包和本机组件。</p>
+        <section id="rsw-dependency-packages" hidden>
+          <h3>R 包</h3>
+          <div class="rsw-dependency-list" id="rsw-dependency-package-list"></div>
+        </section>
+        <section id="rsw-dependency-external" hidden>
+          <h3>本机科研组件</h3>
+          <div class="rsw-dependency-list" id="rsw-dependency-external-list"></div>
+        </section>
+        <p class="rsw-dependency-note" id="rsw-dependency-note"></p>
+      </div>
+      <footer class="rsw-dependency-actions">
+        <button class="rsw-ghost-btn" type="button" data-dependency-action="close">取消本次续跑</button>
+        <div>
+          <button class="rsw-secondary-btn" type="button" data-dependency-action="recheck">重新检测</button>
+          <button class="rsw-secondary-btn" type="button" data-dependency-action="cancel-install" hidden>停止安装</button>
+          <button class="rsw-primary-btn" type="button" data-dependency-action="install">确认安装缺失 R 包</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div class="rsw-modal rsw-replace-modal" id="rsw-replace-modal" hidden>
+    <div class="rsw-modal-backdrop" data-replace-action="cancel"></div>
+    <section class="rsw-replace-dialog" role="dialog" aria-modal="true" aria-labelledby="rsw-replace-title" aria-describedby="rsw-replace-description rsw-replace-impact">
+      <header class="rsw-replace-head">
+        <div>
+          <span>切换活动数据</span>
+          <h2 id="rsw-replace-title">确认使用这份新数据</h2>
+        </div>
+        <button class="rsw-icon-btn" type="button" aria-label="关闭并保留当前数据" data-replace-action="cancel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12" /><path d="M18 6L6 18" /></svg>
+        </button>
+      </header>
+      <div class="rsw-replace-body">
+        <p id="rsw-replace-description">当前数据已经产生分析结果，所以在切换前需要确认。没有分析结果时，新数据会直接进入理解流程。</p>
+        <div class="rsw-replace-route" aria-label="数据切换预览">
+          <article class="rsw-replace-dataset is-current">
+            <span>当前工作区</span>
+            <div class="rsw-replace-file-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" /><path d="M14 3v5h5" /><path d="M9 13h6" /><path d="M9 17h6" /></svg>
+            </div>
+            <strong id="rsw-replace-current-name">当前数据</strong>
+            <small id="rsw-replace-current-meta">已有分析结果</small>
+          </article>
+          <div class="rsw-replace-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M14 7l5 5-5 5" /></svg>
+          </div>
+          <article class="rsw-replace-dataset is-incoming">
+            <span>准备使用</span>
+            <div class="rsw-replace-file-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" /><path d="M14 3v5h5" /><path d="M12 17V11" /><path d="M9 14l3-3 3 3" /></svg>
+            </div>
+            <strong id="rsw-replace-incoming-name">新数据文件</strong>
+            <small id="rsw-replace-incoming-meta">等待读取文件信息</small>
+          </article>
+        </div>
+        <section class="rsw-replace-impact-card">
+          <div class="rsw-replace-impact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 4v10" /><path d="M12 18h.01" /><path d="M10 3L3 20h18L14 3z" /></svg>
+          </div>
+          <div>
+            <h3>切换后的工作区</h3>
+            <p id="rsw-replace-impact">分析计划、结果和对话将重置，新数据会立即开始结构识别。</p>
+            <small>如需保留当前成果，可先导出完整结果包；取消不会修改任何内容。</small>
+          </div>
+        </section>
+      </div>
+      <footer class="rsw-replace-actions">
+        <button class="rsw-ghost-btn" type="button" data-replace-action="cancel">保留当前数据</button>
+        <div>
+          <button class="rsw-secondary-btn" type="button" data-replace-action="export">先导出结果包，再替换</button>
+          <button class="rsw-replace-primary" type="button" data-replace-action="replace">使用新数据</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div class="rsw-toast" id="rsw-toast" role="status" aria-live="polite" hidden></div>
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script src="{{ url_for('static', filename='js/research_markdown.js', v='r1') }}"></script>
+  <script src="{{ url_for('static', filename='js/research_workbench.js', v='r66') }}"></script>
+</body>
+</html>
