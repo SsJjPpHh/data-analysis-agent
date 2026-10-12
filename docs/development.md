@@ -55,6 +55,10 @@ python -m pytest tests/core/test_analysis_catalog.py tests/core/test_workflow_re
 
 ## R 方法参考检查
 
+Windows 首次安装和最小本机 R 验收见 [Windows 验收方案](windows-acceptance.md)。
+自检脚本复用下述原生用例，输出逐项 PASS/FAIL/SKIP、JUnit 和诊断日志；
+任一跳过或收集不完整均不能判为验收通过。
+
 完整测试会调用真实本机 R，创建合成数据和临时产物。默认模式下部分测试可以因缺少 R 或包而跳过；绿色结果需要同时查看 skip 数量与原因。
 
 `scripts/science-reference-packages.txt` 是完整参考检查的依赖清单，不是普通用户的启动安装清单。先将所需包安装在测试用 R 库中。独立 R 检查器读取 R 标准环境变量 `R_LIBS_USER`；pytest 的 `tests/conftest.py` 会将 `BAA_TEST_R_LIBS` 传入 `R_LIBS_USER`。使用自定义包库时应让两者指向同一位置，多目录按操作系统路径分隔符分隔。不要依赖历史开发产物目录中的包。
@@ -86,3 +90,4 @@ Windows 原生后端使用 AppContainer、限定目录 ACL 和 Job Object，相�
 项目不保留 GitHub Actions 配置；以上检查均由开发者在本机按需要执行。
 
 自动测试主要使用模拟模型。真实 DeepSeek 验证应使用自己的 API Key、单独运行目录和合成数据，实际检查上传、工具调用、冻结方案、R 执行、失败处理和导出；不要把模拟模型测试或固定方法参考测试称作真实模型端到端验收。
+

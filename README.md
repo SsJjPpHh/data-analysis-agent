@@ -179,6 +179,10 @@ python -m venv .venv
 
 源码提供上述三个平台的运行实现，第三方 R 包及外部工具仍须支持用户的系统。Windows 原生验收用例与排查命令见[开发文档](docs/development.md)；本次发布未在真实 Windows 机器上执行这些用例。
 
+Windows 首次安装后可按[最小验收方案](docs/windows-acceptance.md)运行
+`scripts/windows_selfcheck.py`，检查环境、本机 R、中文路径及原生隔离，并保存通过、失败和跳过记录。
+提供脚本不代表已完成 Windows 原生验收。
+
 ## 结果、导出与可复核性
 
 工作台保存的是实际执行结果及其来源，包括冻结计划、R 代码、表格、图形、模型、环境与包版本、随机数状态、checkpoint 和可用的回放快照。不同方法和执行步骤提供的材料会有所不同。
@@ -264,3 +268,4 @@ data-analysis-agent/
 项目源码采用 [Apache License 2.0](LICENSE)。Python、Qt、R 和各第三方包遵循各自许可证。
 
 **开发者：Z-Joy**
+
